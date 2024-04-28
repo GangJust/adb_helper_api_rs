@@ -1,0 +1,2 @@
+[workspace]
+members = ["adb_core", "example", "logcat-client"]
