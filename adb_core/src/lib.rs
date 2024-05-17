@@ -169,22 +169,6 @@ pub fn pull_file(device: &Device, remote_path: &str, local_path: &str) -> String
 pub fn install_apk(device: &Device, apk_path: &str) -> String {
     let args = vec!["-s", &device.serial_no, "install", "-r", apk_path];
     ShellUtils::shell_to_string("adb", args)
-    /* let output = Command::new("adb")
-        .arg("install")
-        .arg("-r")
-        .arg(apk_path)
-        .stdout(Stdio::piped()) // Redirect output
-        .stderr(Stdio::piped())
-        .output();
-
-    match output {
-        Ok(out) => {
-            let stdout = String::from_utf8_lossy(&out.stdout).to_string();
-            let stderr = String::from_utf8_lossy(&out.stderr).to_string();
-            stderr + &stdout // Combine stdout and stderr
-        }
-        Err(err) => err.to_string(),
-    } */
 }
 
 /// 卸载apk

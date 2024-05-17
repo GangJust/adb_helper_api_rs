@@ -32,7 +32,7 @@ impl ShellUtils {
         let program = program.as_ref();
         let args = args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>();
 
-        println!("shell: {} {}", &program, &args.join(" "));
+        println!("shell: {} {}", &program, &args.join(" ")); // Log command
 
         Command::new(program)
             .args(args)
@@ -85,7 +85,8 @@ impl ShellUtils {
     pub fn shell_spawn<T: AsRef<str>>(program: T, args: Vec<T>) -> std::process::Child {
         let program = program.as_ref();
         let args = args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>();
-        println!("shell_spawn: {} {}", &program, &args.join(" "));
+
+        println!("shell_spawn: {} {}", &program, &args.join(" ")); // Log command
 
         Command::new(program)
             .args(args)

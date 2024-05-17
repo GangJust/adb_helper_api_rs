@@ -50,5 +50,5 @@ fn main() {
     // let layout = adb_core::get_layout(&first_device);
     // println!("{}", layout);
 
-    adb_core::logcat(&first_device, 5656); //and then run `cargo run -p logcat-client`
+    // adb_core::logcat(&first_device, 5656); //and then run `cargo run -p logcat-client`
 }
