@@ -1,2 +1,2 @@
 [workspace]
-members = ["adb_core", "example", "logcat-client"]
+members = ["adb", "api-jni", "example", "logcat-client"]
