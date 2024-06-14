@@ -1,5 +1,6 @@
 mod helper;
 
+mod adb_server;
 mod get_activity;
 mod get_adb_version;
 mod get_devices;
@@ -11,6 +12,7 @@ mod pull_and_push_file;
 mod screenshot;
 mod shell;
 
+pub use adb_server::*;
 pub use get_activity::*;
 pub use get_adb_version::*;
 pub use get_devices::*;

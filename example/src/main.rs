@@ -16,7 +16,9 @@ fn main() {
     // dbg!("{:?}", &desc);
 
     // let files = adb::list_files(&first_device.serial_no, "/storage/emulated/0/新建_文件 夹/");
-    // let files = adb::list_files(first_device, "/");
+    // let files = adb::list_files(&first_device.serial_no, "/");
+    // let files = adb::list_files(&first_device.serial_no, "/metadata");
+    // let files = adb::list_files(&first_device.serial_no, "/storage/emulated/0/.Application/");
     // println!("{}", serde_json::to_string_pretty(&files).unwrap());
 
     // let local_path = "C:\\Users\\HMS\\Desktop\\测试 空格\\com.coolapk.market.apk";

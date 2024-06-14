@@ -1,8 +1,8 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::utils::RegexUtils;
-
-use super::DeviceProp;
 
 /// 设备
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,7 +20,7 @@ pub struct Device {
     //传输ID
     pub transport_id: String,
     //设备参数
-    pub props: Vec<DeviceProp>,
+    pub props: HashMap<String, String>,
 }
 
 impl Device {
@@ -41,7 +41,7 @@ impl Device {
                 let device = RegexUtils::captures_value(&it, 5);
                 let transport_id = RegexUtils::captures_value(&it, 6);
                 let props_content = call_props_content(&serial_no);
-                let props = DeviceProp::parse(props_content);
+                let props = Self::parse_props(props_content);
 
                 Self {
                     serial_no,
@@ -60,8 +60,27 @@ impl Device {
                 model: String::new(),
                 device: String::new(),
                 transport_id: String::new(),
-                props: Vec::new(),
+                props: HashMap::new(),
             },
         };
+    }
+
+    /// 解析设备参数
+    fn parse_props(content: String) -> HashMap<String, String> {
+        let mut props = HashMap::new();
+        let lines = content.split("\n");
+        for line in lines {
+            let line = line.trim();
+            if line.is_empty() {
+                continue;
+            }
+            let kv: Vec<&str> = line.split(":").collect();
+            if kv.len() == 2 {
+                let key = kv[0].trim().to_string();
+                let value = kv[1].trim().to_string();
+                props.insert(key, value);
+            }
+        }
+        return props;
     }
 }

@@ -4,7 +4,7 @@ use jni::{
     JNIEnv,
 };
 
-use crate::helper::{get_result, get_string, ArrayList};
+use crate::helper::{get_result, get_string, JArrayList};
 
 /// 获取包名列表
 #[no_mangle]
@@ -18,10 +18,10 @@ pub unsafe extern "C" fn Java_adb_Adb_getPackages<'local>(
 
     let packages = adb::get_packages(&serial_no, is_system == 1);
 
-    let array_list = ArrayList::new(&mut env);
+    let array_list = JArrayList::new(&mut env);
     for ele in &packages {
         let package = env.new_string(ele).unwrap();
-        ArrayList::add(&mut env, &array_list, &package);
+        JArrayList::add(&mut env, &array_list, &package);
     }
 
     array_list

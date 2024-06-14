@@ -3,7 +3,7 @@ use jni::{
     JNIEnv,
 };
 
-use crate::helper::{get_result, get_string, ArrayList};
+use crate::helper::{get_result, get_string, JArrayList};
 
 /// 获取活动信息
 #[no_mangle]
@@ -22,10 +22,10 @@ pub unsafe extern "C" fn Java_adb_Adb_getActivity<'local>(
     let resumed_activity = env.new_string(&activity.resumed_activity).unwrap();
     let last_activity = env.new_string(&activity.last_activity).unwrap();
 
-    let stack_activities = ArrayList::new(&mut env);
+    let stack_activities = JArrayList::new(&mut env);
     for ele in &activity.stack_activities {
         let stack_activity = env.new_string(ele).unwrap();
-        ArrayList::add(&mut env, &stack_activities, &stack_activity);
+        JArrayList::add(&mut env, &stack_activities, &stack_activity);
     }
 
     let args = [

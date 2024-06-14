@@ -1,10 +1,10 @@
-use adb::entity::{Device, DeviceProp};
+use adb::entity::Device;
 use jni::{
     objects::{JObject, JValue},
     JNIEnv,
 };
 
-use crate::helper::{get_result, ArrayList};
+use crate::helper::{get_result, JArrayList, JHashMap};
 
 /// 获取附加设备列表
 #[no_mangle]
@@ -15,10 +15,10 @@ pub unsafe extern "C" fn Java_adb_Adb_getDevices<'local>(
     let devices = adb::get_devices();
 
     // 遍历设备列表, 构造ArrayList
-    let device_list = ArrayList::new(&mut env);
+    let device_list = JArrayList::new(&mut env);
     for ele in &devices {
         let device = new_device(&mut env, &ele);
-        ArrayList::add(&mut env, &device_list, &device);
+        JArrayList::add(&mut env, &device_list, &device);
     }
 
     return device_list;
@@ -34,10 +34,11 @@ fn new_device<'local>(env: &mut JNIEnv<'local>, device: &Device) -> JObject<'loc
     let transport_id = env.new_string(&device.transport_id).unwrap();
 
     // 遍历属性, 构造ArrayList
-    let prop_list = ArrayList::new(env);
+    let prop_map = JHashMap::new(env);
     for ele in &device.props {
-        let prop = new_device_prop(env, &ele);
-        ArrayList::add(env, &prop_list, &prop);
+        let key = env.new_string(ele.0).unwrap();
+        let value = env.new_string(ele.1).unwrap();
+        JHashMap::put(env, &prop_map, &key, &value);
     }
 
     let args = [
@@ -47,28 +48,12 @@ fn new_device<'local>(env: &mut JNIEnv<'local>, device: &Device) -> JObject<'loc
         JValue::from(&model),
         JValue::from(&device_name),
         JValue::from(&transport_id),
-        JValue::from(&prop_list),
+        JValue::from(&prop_map),
     ];
 
     let result = env.new_object(
         "adb/entity/Device",
-        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V",
-        &args,
-    );
-
-    get_result(result)
-}
-
-// 构建设备属性对象
-fn new_device_prop<'local>(env: &mut JNIEnv<'local>, device_prop: &DeviceProp) -> JObject<'local> {
-    let key = env.new_string(&device_prop.name).unwrap();
-    let value = env.new_string(&device_prop.value).unwrap();
-
-    let args = [JValue::from(&key), JValue::from(&value)];
-
-    let result = env.new_object(
-        "adb/entity/DeviceProp",
-        "(Ljava/lang/String;Ljava/lang/String;)V",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V",
         &args,
     );
 

@@ -10,6 +10,18 @@ use std::{
 use entity::{Activity, AppDesc, Device, FileDesc, Screenshot, Version};
 use utils::ShellUtils;
 
+/// 启动adb服务
+pub fn start_server() -> String {
+    let args = vec!["start-server"];
+    ShellUtils::shell_to_string("adb", args)
+}
+
+/// 停止adb服务
+pub fn kill_server() -> String {
+    let args = vec!["kill-server"];
+    ShellUtils::shell_to_string("adb", args)
+}
+
 /// 获取adb版本
 pub fn version() -> Version {
     let args = vec!["version"];
@@ -23,10 +35,15 @@ pub fn get_devices() -> Vec<Device> {
     let content = ShellUtils::shell_to_string("adb", args);
     let mut splits = content.trim().split("\n");
 
-    splits.next(); //跳过第一个 `List of devices attached`
+    let first = splits.next().unwrap(); //跳过 `List of devices attached`
+    if first.starts_with("* daemon not running;") {
+        //如果是首次运行，需要跳过三行
+        splits.next().unwrap(); //跳过 `* daemon not running; starting now at tcp:5037`
+        splits.next().unwrap(); //跳过 `* daemon started successfully`
+    }
 
+    //获取设备属性
     let prop_call = |serial_no: &String| {
-        //获取设备属性
         let args = vec!["-s", serial_no, "shell", "getprop"];
         ShellUtils::shell_to_string("adb", args)
     };
@@ -137,6 +154,17 @@ pub fn list_files<T: AsRef<str>>(serial_no: &T, path: &str) -> Vec<FileDesc> {
     let args = vec!["-s", serial_no.as_ref(), "shell", "ls", "-lai", &safe_path];
     let content = ShellUtils::shell_to_string("adb", args);
     FileDesc::parse(&content, &path)
+}
+
+/// 获取文件类型
+pub fn get_file_kind<T: AsRef<str>>(serial_no: &T, path: &str) -> String {
+    let safe_path = format!("'{}'", &path); //防止路径中出现空格，外部包裹一个引号
+    let args = vec!["-s", serial_no.as_ref(), "shell", "file", "-L", &safe_path];
+    let content = ShellUtils::shell_to_string("adb", args);
+    match content.trim().ends_with("directory") {
+        true => "directory".to_string(),
+        false => "file".to_string(), //其他情况都认为是文件
+    }
 }
 
 /// 推送文件

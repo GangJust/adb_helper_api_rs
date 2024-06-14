@@ -4,7 +4,7 @@ use jni::{
     JNIEnv,
 };
 
-use crate::helper::{get_result, get_string, ArrayList};
+use crate::helper::{get_result, get_string, JArrayList};
 
 /// 获取文件列表
 #[no_mangle]
@@ -19,10 +19,10 @@ pub extern "C" fn Java_adb_Adb_getFiles<'local>(
 
     let files = adb::list_files(&serial_no, &path);
 
-    let list = ArrayList::new(&mut env);
+    let list = JArrayList::new(&mut env);
     for ele in files {
         let file_desc = new_file_desc(&mut env, &ele);
-        ArrayList::add(&mut env, &list, &file_desc);
+        JArrayList::add(&mut env, &list, &file_desc);
     }
 
     list
@@ -35,8 +35,7 @@ fn new_file_desc<'local>(env: &mut JNIEnv<'local>, desc: &FileDesc) -> JObject<'
     let owner = env.new_string(&desc.owner).unwrap();
     let group = env.new_string(&desc.group).unwrap();
     let size = env.new_string(&desc.size).unwrap();
-    let modification_date = env.new_string(&desc.modification_date).unwrap();
-    let modification_time = env.new_string(&desc.modification_time).unwrap();
+    let datetime = env.new_string(&desc.datetime).unwrap();
     let name = env.new_string(&desc.name).unwrap();
     let kind = env.new_string(&desc.kind).unwrap();
     let path = env.new_string(&desc.path).unwrap();
@@ -48,8 +47,7 @@ fn new_file_desc<'local>(env: &mut JNIEnv<'local>, desc: &FileDesc) -> JObject<'
         JValue::from(&owner),
         JValue::from(&group),
         JValue::from(&size),
-        JValue::from(&modification_date),
-        JValue::from(&modification_time),
+        JValue::from(&datetime),
         JValue::from(&name),
         JValue::from(&kind),
         JValue::from(&path),
@@ -57,9 +55,25 @@ fn new_file_desc<'local>(env: &mut JNIEnv<'local>, desc: &FileDesc) -> JObject<'
 
     let result = env.new_object(
         "adb/entity/FileDesc", 
-    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", 
+    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", 
     &args
     );
 
     get_result(result)
+}
+
+/// 获取文件类型
+#[no_mangle]
+pub extern "C" fn Java_adb_Adb_getFileKind<'local>(
+    mut env: JNIEnv<'local>,
+    _thiz: JObject<'local>,
+    serial_no: JString<'local>,
+    path: JString<'local>,
+) -> JString<'local> {
+    let serial_no = get_string(&mut env, &serial_no);
+    let path = get_string(&mut env, &path);
+
+    let result = adb::get_file_kind(&serial_no, &path);
+
+    env.new_string(&result).unwrap()
 }

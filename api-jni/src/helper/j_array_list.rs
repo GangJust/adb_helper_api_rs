@@ -1,9 +1,9 @@
 use jni::objects::*;
 use jni::JNIEnv;
 
-pub struct ArrayList {}
+pub struct JArrayList;
 
-impl ArrayList {
+impl JArrayList {
     /// 创建ArrayList对象
     pub fn new<'local>(env: &mut JNIEnv<'local>) -> JObject<'local> {
         let list_clazz = env.find_class("java/util/ArrayList").unwrap();
