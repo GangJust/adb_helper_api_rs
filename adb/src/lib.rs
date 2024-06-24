@@ -29,6 +29,12 @@ pub fn version() -> Version {
     Version::parse(content)
 }
 
+/// 连接设备
+pub fn connect<T: AsRef<str>>(ip: &T) -> String {
+    let args = vec!["connect", ip.as_ref()];
+    ShellUtils::shell_to_string("adb", args)
+}
+
 /// 获取附加设备列表
 pub fn get_devices() -> Vec<Device> {
     let args = vec!["devices", "-l"];
@@ -36,6 +42,7 @@ pub fn get_devices() -> Vec<Device> {
     let mut splits = content.trim().split("\n");
 
     let first = splits.next().unwrap(); //跳过 `List of devices attached`
+
     if first.starts_with("* daemon not running;") {
         //如果是首次运行，需要跳过三行
         splits.next().unwrap(); //跳过 `* daemon not running; starting now at tcp:5037`
@@ -53,6 +60,7 @@ pub fn get_devices() -> Vec<Device> {
             //解析设备信息
             Device::parse(item_str.to_string(), prop_call)
         })
+        .filter(|item| !item.serial_no.is_empty())
         .collect::<Vec<Device>>();
 }
 

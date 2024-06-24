@@ -3,9 +3,9 @@ fn main() {
     // dbg!("{:?}", &result);
 
     let devices = adb::get_devices();
-    // dbg!("{:?}", &devices);
+    dbg!("{:?}", &devices);
 
-    let first_device = devices.first().expect("No device attached");
+    // let first_device = devices.first().expect("No device attached");
     // let activity = adb::get_activity(&first_device.serial_no);
     // dbg!("{:?}", &activity);
 
